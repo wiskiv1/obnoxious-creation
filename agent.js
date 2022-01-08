@@ -50,7 +50,7 @@ class agent {
                 //bereken vector die wijst van a naar this
                 let t = p5.Vector.sub(this.position, a.position);
                 //pas grote van de vector aan op basis van afstand
-                t.mult(this.radius / d);
+                t.setMag(this.radius / d);
                 vector.add(t);
             }
         }
