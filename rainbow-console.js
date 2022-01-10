@@ -7,7 +7,7 @@ console.rainbow = function (str) {
       "green",
       "blue",
       "indigo",
-      "violet",//white in VS Code
+      "violet",
   ]
   
   let color_counter = 0;
