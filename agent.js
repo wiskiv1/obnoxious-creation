@@ -1,6 +1,6 @@
 class agent {
 
-    constructor(x, y) {
+    constructor(x, y, id) {
         this.position = createVector(x, y);
         this.velocity = createVector(0,0);
         this.acceleration = createVector(0,0);
@@ -10,6 +10,8 @@ class agent {
         this.winkelMulti = 0.75;
         this.bubbelTimer = floor(random(0, bubbels.max));
         this.bubbelMulti = 1;
+        this.bubbelId = -1; //agentId van de 'leider' van de bubbel, -1 betekend zelf de leider van de bubbbel
+        this.agentId = id;
     }
 
     show() {
@@ -54,9 +56,45 @@ class agent {
                     this.winkelTimer = floor(random(store.min, store.max))
                 }
             }
+
         } 
 
         //bubbels
+        /* 
+        als timer == 0 maak bekend dat je eenzaam bent
+        als er 4 eenzaam zijn duid leider aan (gebeurd in sketch.js)
+        timer word op -2 gezet zodat (this.bubbelTimer < -1) == true
+        gebruik gaNaar() om naar de leider te navigeren als je niet zelf de leider bent
+        zet social distancing uit zodra je dicht genoeg bij de leider bent
+        */
+        if (this.bubbelTimer == 0) {
+            //maak bekend dat agent eenzaam is en wil socializen
+            eenzameAgents.push(this.agentId);
+            this.bubbelTimer = this.bubbelTimer - 1;
+
+        } else if (this.bubbelTimer < -1) {
+            if (this.bubbelId != -1) {
+                //als niet de leider dan ga naar de leider
+                let l = agents[this.bubbelId]; // selecteer leider
+                let v = this.gaNaar(l.position.x, l.position.y);
+                //voeg vector toe aan versnelling
+                if (v.mag > 8) {v.setMag(8);} //limiteer hoe groot vector kan zijn
+                this.acceleration.add(v.mult(this.bubbelMulti));
+
+                //wanneer dicht genoeg bij leider stop met social distancing
+                //en tel hoe lang je samen blijft
+                let d = dist(l.position.x, l.position.y, this.position.x, this.position.y);
+                if (d < this.radius + 5) {
+                    this.socialMulti = 0;
+                    l.socialMulti = 0;
+                    
+                    //TODO reset bubbels
+                    // zorg dat ze niet meer constant rond elkaar draaien
+                }
+            }
+
+        }
+
 
         //als versnelling 0 is vertragen zodat agenten niet constant aan het rondbewegen zijn
         if (this.acceleration.mag() == 0) {this.velocity.mult(0.8)}
@@ -77,8 +115,9 @@ class agent {
         if (this.position.y > height) {this.position.y = 0;}
         if (this.position.y < 0) {this.position.y = height;}
 
-        //verwijder 1 van de benodigheden
-        if (this.winkelTimer > 0) {this.winkelTimer = this.winkelTimer - 1;}
+        //verwijder 1 van de benodighedentimers maar enkel als er geen andere behoefte wordt uitgevoerd
+        //if (this.winkelTimer > 0 && !(this.bubbelTimer <= 0) ) {this.winkelTimer = this.winkelTimer - 1;}
+        if (this.bubbelTimer > 0 && !(this.winkelTimer <= 0) ) {this.bubbelTimer = this.bubbelTimer - 1;}
     }
 
     //STUREN -----------------------------------------------------------------------------------------------
