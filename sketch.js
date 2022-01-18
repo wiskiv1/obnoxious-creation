@@ -10,7 +10,8 @@ let store = {
 let bubbels = {
   max : 300,
   min : 200,
-  size : 4
+  size : 4,
+  lengte : 250
 }
 
 let agents = [];
@@ -45,7 +46,7 @@ function draw() {
   pop();
 
   //zet 4 eenzame agents in een bubbel en geef ze een leider
-  if (eenzameAgents.length >= bubbels.size) {
+  if (eenzameAgents.length >= bubbels.size) { 
     //slaag leider ID op en verwijder uit de lijst
     let leaderID = eenzameAgents[0]; //leider
     agents[leaderID].bubbelId = -1;
@@ -60,6 +61,8 @@ function draw() {
       eenzameAgents.shift();
     }
   }
+
+  //
 }
 
 function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
@@ -67,7 +70,7 @@ function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
 
 /*TODO
 GUI
-Bubbels
+Bubbels !done!
 Versprijding
 grafieken?
 */

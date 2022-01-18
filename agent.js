@@ -25,6 +25,10 @@ class agent {
         pop();
     }
 
+    versprijd() {
+        //code voor de verspreiding van de ziekte hier
+    }
+
     update() {
         //DOEL SELECTIE (berekenen van de acceleratie vector) -------------------------------------------------
         //social distancing
@@ -60,13 +64,6 @@ class agent {
         } 
 
         //bubbels
-        /* 
-        als timer == 0 maak bekend dat je eenzaam bent
-        als er 4 eenzaam zijn duid leider aan (gebeurd in sketch.js)
-        timer word op -2 gezet zodat (this.bubbelTimer < -1) == true
-        gebruik gaNaar() om naar de leider te navigeren als je niet zelf de leider bent
-        zet social distancing uit zodra je dicht genoeg bij de leider bent
-        */
         if (this.bubbelTimer == 0) {
             //maak bekend dat agent eenzaam is en wil socializen
             eenzameAgents.push(this.agentId);
@@ -79,7 +76,7 @@ class agent {
                 let v = this.gaNaar(l.position.x, l.position.y);
                 //voeg vector toe aan versnelling
                 if (v.mag > 8) {v.setMag(8);} //limiteer hoe groot vector kan zijn
-                this.acceleration.add(v.mult(this.bubbelMulti));
+                this.acceleration.add(v.mult(this.bubbelMulti));//kies hoe belangrijk
 
                 //wanneer dicht genoeg bij leider stop met social distancing
                 //en tel hoe lang je samen blijft
@@ -87,18 +84,28 @@ class agent {
                 if (d < this.radius + 5) {
                     this.socialMulti = 0;
                     l.socialMulti = 0;
-                    
-                    //TODO reset bubbels
-                    // zorg dat ze niet meer constant rond elkaar draaien
+
+                    if (d < this.radius) {
+                        this.bubbelMulti = 0;//stop het ronddraaien
+                        
+                        //tel af en reset
+                        this.bubbelTimer = this.bubbelTimer - 1;
+                        if (this.bubbelTimer == - 2 - bubbels.lengte) { //als sociale interactie gedaan is
+                            this.socialMulti = 1;
+                            this.bubbelMulti = 1;
+                            l.socialMulti = 1;
+                            this.bubbelId = -1;
+                            this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
+                        }
+                    } 
                 }
             }
 
         }
 
 
-        //als versnelling 0 is vertragen zodat agenten niet constant aan het rondbewegen zijn
+        //vertragen zodat agenten niet constant aan het rondbewegen zijn
         if (this.acceleration.mag() == 0) {this.velocity.mult(0.8)}
-
 
         //VOORTBEWEGING ------------------------------------------------------------------------------------
         //voegsnelheid toe aan positie, versnelling aan snelheid en zet versnelling gelijk aan 0
