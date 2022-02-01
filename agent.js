@@ -12,6 +12,9 @@ class agent {
         this.bubbelMulti = 1;
         this.bubbelId = -1; //agentId van de 'leider' van de bubbel, -1 betekend zelf de leider van de bubbbel
         this.agentId = id;
+
+        this.compartiment = 0; //infectiestatus 0 = vatbaar, 1 = geinfecteerd, 2 = hersteld/dood
+        this.hoestTimer = 0;
     }
 
     show() {
@@ -26,11 +29,22 @@ class agent {
     }
 
     versprijd() {
-        //code voor de verspreiding van de ziekte hier
+        //bepaal of agents geinfecteerd worden wanneer ze in de buurt zijn van iemand positief
+        if (this.compartiment == 1) {
+            for (let a of agents) {
+                let d = dist(a.position.x, a.position.y, this.position.x, this.position.y);
+                if (d < disease.infectieRadius) {
+
+                }
+            }
+        }
     }
 
     update() {
         //DOEL SELECTIE (berekenen van de acceleratie vector) -------------------------------------------------
+        //pas parameters aan (enkel voor antivaxers / anticoronamaatregel mensen)
+
+
         //social distancing
         let social = createVector(0, 0)
         for (let a of agents) {
@@ -70,7 +84,7 @@ class agent {
             this.bubbelTimer = this.bubbelTimer - 1;
 
         } else if (this.bubbelTimer < -1) {
-            if (this.bubbelId != -1) {
+            if (this.bubbelId >= 0) {
                 //als niet de leider dan ga naar de leider
                 let l = agents[this.bubbelId]; // selecteer leider
                 let v = this.gaNaar(l.position.x, l.position.y);
@@ -94,11 +108,14 @@ class agent {
                             this.socialMulti = 1;
                             this.bubbelMulti = 1;
                             l.socialMulti = 1;
+                            l.bubbelId = l.bubbelId - 1;
                             this.bubbelId = -1;
                             this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
                         }
-                    } 
+                    } else {this.bubbelMulti = 1;} //zorg dat ze niet vast komen te zitten
                 }
+            } else if (this.bubbelId == -4) {
+                this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
             }
 
         }

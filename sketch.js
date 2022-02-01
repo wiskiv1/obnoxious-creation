@@ -1,6 +1,7 @@
 //simulation variables: variabelen die de gebruiker kan aanpassen om de simulatie te bepalen
 //standaardwaarden staan hier maar kunnen via GUI worden aangepast
-var afstandStraal = 30;
+//nog toe te voegen: max snelheid, max acceleratie, masker, ziekte eigenschappen, recovery tijd,
+var afstandStraal = 30; //10 pixels = 1m
 let store = {
   x : 390,
   y : 290,
@@ -13,6 +14,15 @@ let bubbels = {
   size : 4,
   lengte : 250
 }
+let disease = {
+  incubation : 300,
+  herstelperiode : 600,
+  hoesttijd : 30, //periode tussen hoestjes
+  infectieFunctie : null, //wordt gevuld in setup() is de waarschijnlijkheid op infectie op basis van afstand
+  infectieRadius : 30,
+}
+let infectieFunctieString = "1 / pow(x, 2)";
+
 
 let agents = [];
 let eenzameAgents = []; // agents die willen socializen en een bubbel willen vormen
@@ -23,9 +33,11 @@ function setup() {
 
   frameRate(30);//framerate op 30 zetten, wordt makkelijk om later te berekenen hoe lang agents bij elkaar in de buurt zijn in "echte tijd"
 
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 4; i++) {
     agents.push(new agent(random(width), random(height), i)); //maak 100 agents verspreid random over het veld
   }
+
+  maakWaarschijnlijkheidsFunctie(infectieFunctieString);
 }
 
 function draw() {
@@ -63,6 +75,17 @@ function draw() {
   }
 
   //
+  console.log(dist(agents[1].position.x, agents[1].position.y, agents[0].position.x, agents[0].position.y));
+}
+
+//maak functie die de waarschijnlijkheid geeft op infectie geeft gebaseerd op afstand en steek deze in disease.infectieFunctie
+//var functie = new Function('d', 'return(d);');
+//WTF dees is verdacht easy lol
+function maakWaarschijnlijkheidsFunctie(f) {
+  let func = f;
+  func = func.replace("x", "(d / 10)"); //zorg dat in de functie 1m gelijk is aan 10 pixels
+
+  disease.infectieFunctie = new Function("d", "let waarschijnlijkheid = " + func + "; return waarschijnlijkheid;")
 }
 
 function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
