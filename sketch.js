@@ -9,19 +9,20 @@ let store = {
   min : 1050
 }
 let bubbels = {
-  max : 300,
-  min : 200,
+  max : 1200,
+  min : 1050,
   size : 4,
   lengte : 250
 }
 let disease = {
-  incubation : 300,
-  herstelperiode : 600,
-  hoesttijd : 30, //periode tussen hoestjes
+  compartimentPeriodes: [0, 20, 40, 0], //gemiddelde periode dat een agent zich in elke fase bevindt (in secondes niet frames), is nul als het niet van tijd afhangt [vatbaar, incubatie, ziek, hersteld/dood]
+  hoesttijd : 30, //periode tussen hoestjes in frames (30fps)
   infectieFunctie : null, //wordt gevuld in setup() is de waarschijnlijkheid op infectie op basis van afstand
   infectieRadius : 30,
+  masker : 0.7, //infectiemultiplier
+  vaccin : 0.1  //infectiemultiplier
 }
-let infectieFunctieString = "1 / pow(x, 2)";
+let infectieFunctieString = "pow(1.36 , -4*x)";
 
 
 let agents = [];
@@ -33,7 +34,7 @@ function setup() {
 
   frameRate(30);//framerate op 30 zetten, wordt makkelijk om later te berekenen hoe lang agents bij elkaar in de buurt zijn in "echte tijd"
 
-  for (var i = 0; i < 4; i++) {
+  for (var i = 0; i < 200; i++) {
     agents.push(new agent(random(width), random(height), i)); //maak 100 agents verspreid random over het veld
   }
 
@@ -47,6 +48,12 @@ function draw() {
     //x.afstand();
     //x.gaNaar(400, 300);
     x.update();
+  }
+
+  if (frameCount % disease.hoesttijd == 0) {
+    for (let x of agents) {
+      x.versprijd();
+    }
   }
 
   // teken winkel
@@ -74,8 +81,7 @@ function draw() {
     }
   }
 
-  //
-  console.log(dist(agents[1].position.x, agents[1].position.y, agents[0].position.x, agents[0].position.y));
+
 }
 
 //maak functie die de waarschijnlijkheid geeft op infectie geeft gebaseerd op afstand en steek deze in disease.infectieFunctie
@@ -85,10 +91,18 @@ function maakWaarschijnlijkheidsFunctie(f) {
   let func = f;
   func = func.replace("x", "(d / 10)"); //zorg dat in de functie 1m gelijk is aan 10 pixels
 
-  disease.infectieFunctie = new Function("d", "let waarschijnlijkheid = " + func + "; return waarschijnlijkheid;")
+  disease.infectieFunctie = new Function("d, zieke, gezond", "let waarschijnlijkheid = " + func + "; if (zieke.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} if (gezond.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} if (gezond.gevacinneerd == true) {waarschijnlijkheid = waarschijnlijkheid * disease.vaccin;} return waarschijnlijkheid;");
 }
 
-function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
+/*infectiefunctie overzichtelijk:
+  let waarschijnlijkheid = " + func + ";
+  if (zieke.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} //pas aan voor masker zieke
+  if (gezond.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} //pas aan vor masker gezonde
+  if (gezond.gevacinneerd == true) {waarschijnlijkheid = waarschijnlijkheid * disease.vaccin;} //pas aan voor vaccin gezonde
+  return waarschijnlijkheid;
+*/
+
+//function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
 //function mousePressed() {print(agents[0].winkelTimer)}
 
 /*TODO

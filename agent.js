@@ -13,30 +13,49 @@ class agent {
         this.bubbelId = -1; //agentId van de 'leider' van de bubbel, -1 betekend zelf de leider van de bubbbel
         this.agentId = id;
 
-        this.compartiment = 0; //infectiestatus 0 = vatbaar, 1 = geinfecteerd, 2 = hersteld/dood
-        this.hoestTimer = 0;
+        this.compartiment = 0; //infectiestatus 0 = vatbaar, 1 = incubatie, 2 = ziek, 3 = hersteld/dood
+        this.compartimentTimer = 0;
+        this.gevacinneerd = false;
+        this.masker = false;
+        this.asymptomatsch = false;
     }
 
     show() {
         push();
-        stroke(255);
+        if (this.compartiment == 0) {stroke(255);}
+        if (this.compartiment == 1) {stroke(205, 105, 87);}
+        if (this.compartiment == 2) {stroke(200, 0, 0);}
+        if (this.compartiment == 3) {stroke(100);}
         strokeWeight(8);
         point(this.position.x, this.position.y);
-        fill(0, 0);
-        strokeWeight(1);
-        //circle(this.position.x, this.position.y, 25)
         pop();
     }
 
     versprijd() {
         //bepaal of agents geinfecteerd worden wanneer ze in de buurt zijn van iemand positief
-        if (this.compartiment == 1) {
+        if (this.compartiment == 1 || this.compartiment == 2) {
             for (let a of agents) {
+                if (a.compartiment != 0) {continue;} //skip loop als agent onvatbaar is
                 let d = dist(a.position.x, a.position.y, this.position.x, this.position.y);
-                if (d < disease.infectieRadius) {
-
+                
+                //neem willekeurig getal [0,1] als dit kleiner is als de infectiewaarschijnlijkheid dan is agent geinfecteerd
+                if (disease.infectieFunctie(d, this, a) >= Math.random()) {
+                    a.compartiment = 1;
+                    a.compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
                 }
             }
+        }
+
+        if (this.compartiment != 0) {
+            if (this.compartimentTimer == 0 && disease.compartimentPeriodes[this.compartiment] != 0) {
+                this.compartiment++; //ga naar volgende fase
+                //bereken hoe lang agents zich in deze fase zal zijn
+                let temp = floor(disease.compartimentPeriodes[this.compartiment] * (0.5 + Math.random()));//tussen 50% en 150% van gemiddelde waarde
+                this.compartimentTimer = temp;
+            }
+
+            //verlaag compartiment timer met 1
+            if (disease.compartimentPeriodes[this.compartiment] != 0) {this.compartimentTimer--;}
         }
     }
 
