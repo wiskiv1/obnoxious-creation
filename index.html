@@ -4,6 +4,22 @@
   <script src="p5 library/p5.sound.js"></script>
   <meta charset="utf-8">
 
+
+  <style>
+    body * {
+      margin: 5px;
+    }
+
+    #defaultCanvas0 {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+    }
+
+    .stupid {
+      margin: 0px;
+    }
+  </style>
 </head>
 
 <body>
@@ -12,4 +28,81 @@
   <script src="agent.js"></script>
   <script src="rainbow-console.js"></script>
 
-</body></html>
+  <table style="border-collapse: collapse; width: 800px; position: relative; top: 620px;" border="1">
+    <tbody>
+      <tr>
+        <td style="width: 309px;">
+          <h4>Simulatie</h4>
+
+          <h5>Winkel</h5>
+          <input type="number" id="WPosX" value="390" style="width: 50px;">
+          <label for="WPosX">X positie</label><br>
+          <input type="number" id="WPosY" value="290" style="width: 50px;">
+          <label for="WPosY">Y positie</label><br>
+          <input type="number" id="Wmax" value="1200" style="width: 50px;">
+          <label for="Wmax">maximale tijd tussen bezoekjes</label><br>
+          <input type="number" id="Wmin" value="1050" style="width: 50px;">
+          <label for="Wmin">minimale tijd tussen bezoekjes</label><br>
+
+          <h5>Bubbels</h5>
+          <input type="number" id="Bsize" value="4" style="width: 50px;">
+          <label for="Bsize">groote van de bubbels</label><br>
+          <input type="number" id="Blengte" value="250" style="width: 50px;">
+          <label for="Blengte">duur van de feestjes</label><br>
+          <input type="number" id="Bmax" value="1200" style="width: 50px;">
+          <label for="Bmax">maximale tijd tussen feestjes</label><br>
+          <input type="number" id="Bmin" value="1050" style="width: 50px;">
+          <label for="Bmin">minimale tijd tussen feestjes</label><br>
+        </td>
+
+        <td style="width: 309px;">
+          <h4>Ziekte</h4>
+          <input type="number" id="hoesttijd" value="30" style="width: 50px;">
+          <label for="hoesttijd">tijd tussen verspreiding</label><br>
+
+          <h5>gemiddelde duur van elk compartiment</h5>
+          <h6>0 is oneindiglang</h6>
+          <input type="number" id="incubatie" value="20" style="width: 50px;">
+          <label for="incubatie">incubatie</label><br>
+          <input type="number" id="ziek" value="40" style="width: 50px;">
+          <label for="ziek">ziek</label><br>
+          <input type="number" id="hersteld" value="0" style="width: 50px;">
+          <label for="hersteld">hersteld</label><br>
+          
+
+          <input type="text" name="infectieFunctie" id="infectieFunctie" value="pow(1.36, -4*x)">
+          <label for="infectieFunctie">infectie functie</label>
+          <input type="number" id="maskerMulti" value="0.3" style="width: 50px;">
+          <label for="maskerMulti">masker werkzaamheid</label><br>
+          <input type="number" id="vaccinMulti" value="0.9" style="width: 50px;">
+          <label for="vaccinMulti">vaccin werkzaamheid</label><br>
+          <input type="number" id="incubatieMulti" value="1" style="width: 50px;">
+          <label for="incubatieMulti">verspreidingsfactor incubatiefase</label><br>
+        </td>
+
+        <td style="width: 182px;">
+          <h4>Maatregelen</h4>
+          <input type="checkbox" id="bubbels">
+          <label for="bubbels">bubbels</label><br>
+          <input type="checkbox" id="socialDistance" checked>
+          <label for="socialDistance">afstand houden</label><br>
+          <input type="number" id="straal" value="30" style="width: 50px;">
+          <label for="straal">welke afstand</label><br>
+          <input type="checkbox" id="winkel">
+          <label for="winkel">winkel</label><br>
+          <input type="checkbox" id="masker">
+          <label for="masker">maskerplicht</label><br>
+          <input type="range" id="vaccinpercentage" min="0" max="1" value="0" step="0.01"><br class="stupid">
+          <label for="vaccinpercentage">% gevaccineerde mensen</label><br>
+          <input type="range" id="antivax" min="0" max="1" value="0" step="0.01"><br class="stupid">
+          <label for="antivax">% anti corona maatregelen</label><br><br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <input type="button" value="toepassen" id="toepassen" style="position: relative; top: 620px;">
+
+</body>
+
+</html>

@@ -18,10 +18,9 @@ let disease = {
   compartimentPeriodes: [0, 20, 40, 0], //gemiddelde periode dat een agent zich in elke fase bevindt (in secondes niet frames), is nul als het niet van tijd afhangt [vatbaar, incubatie, ziek, hersteld/dood]
   hoesttijd : 30, //periode tussen hoestjes in frames (30fps)
   infectieFunctie : null, //wordt gevuld in setup() is de waarschijnlijkheid op infectie op basis van afstand
-  infectieRadius : 30,
   masker : 0.7, //infectiemultiplier
   vaccin : 0.1,  //infectiemultiplier
-  assymptomatisch : 1, //infectiemultiplier
+  assymptomatisch : 1, //infectiemultiplier (momenteel is nog niemand assymptomatisch maar komt wel)
   incubatie : 1, //infectiemultiplier
 }
 let maatregels = { //simulatie parameters zijn universeel
@@ -47,7 +46,7 @@ function setup() {
 
   frameRate(30);//framerate op 30 zetten, wordt makkelijk om later te berekenen hoe lang agents bij elkaar in de buurt zijn in "echte tijd"
 
-  for (var i = 0; i < 200; i++) {
+  for (var i = 0; i < 0; i++) {
     agents.push(new agent(random(width), random(height), i)); //maak 100 agents verspreid random over het veld
   }
 
@@ -195,7 +194,7 @@ function opslaan() {//slaag current statistieken op naar history
 /*TODO
 GUI
 Bubbels !done!
-Versprijding
+Versprijding !done!
 grafieken? (mementeel gwn tabel)
 */
 
