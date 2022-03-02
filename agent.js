@@ -1,6 +1,7 @@
 class agent {
 
     constructor(x, y, id) {
+        //bewegings variabelen
         this.position = createVector(x, y);
         this.velocity = createVector(0,0);
         this.acceleration = createVector(0,0);
@@ -13,11 +14,13 @@ class agent {
         this.bubbelId = -1; //agentId van de 'leider' van de bubbel, -1 betekend zelf de leider van de bubbbel
         this.agentId = id;
 
+        //versprijdingsvariabelen
         this.compartiment = 0; //infectiestatus 0 = vatbaar, 1 = incubatie, 2 = ziek, 3 = hersteld/dood
         this.compartimentTimer = 0;
         this.gevacinneerd = false;
         this.masker = false;
         this.asymptomatsch = false;
+        this.antiCovid = false;
     }
 
     show() {
@@ -42,14 +45,24 @@ class agent {
                 if (disease.infectieFunctie(d, this, a) >= Math.random()) {
                     a.compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
                     a.compartiment = 1;
+                    current[0]--;//update statistieken
+                    current[1]++;
                 }
             }
         }
 
         if (this.compartiment != 0) {
-            if (this.compartimentTimer == 0 && disease.compartimentPeriodes[this.compartiment] != 0) {
+            if (this.compartimentTimer == 0 && disease.compartimentPeriodes[this.compartiment] != 0) { //compartiment periode is 0 wnr compartiment oneindig lang duurt
                 this.compartiment++; //ga naar volgende fase
-                if (this.compartiment >= disease.compartimentPeriodes.length) {this.compartiment = 0;}//loop terug als herinfectie mogelijk is
+                current[this.compartiment - 1]--; //statistieken updaten
+                current[this.compartiment]++;
+
+                if (this.compartiment >= disease.compartimentPeriodes.length) {
+                    this.compartiment = 0;//loop terug als herinfectie mogelijk is
+                    current[3]--; //statistieken updaten
+                    current[0]++;
+                }
+
                 //bereken hoe lang agents zich in deze fase zal zijn
                 let temp = floor(disease.compartimentPeriodes[this.compartiment] * (0.5 + Math.random()));//tussen 50% en 150% van gemiddelde waarde
                 this.compartimentTimer = temp;
@@ -66,7 +79,7 @@ class agent {
 
         //social distancing
         let social = createVector(0, 0)
-        if (maatregels.socialDistance == true) {
+        if (maatregels.socialDistance == true && this.antiCovid == false) {
             for (let a of agents) {
                 if (a == this) continue;
 

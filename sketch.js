@@ -28,11 +28,15 @@ let maatregels = { //simulatie parameters zijn universeel
   bubbels : true,
   socialDistance : true,
   winkel : false,
-  maskerPercent : 1,
-  vaccinPercent : 1
+  masker : false, //% agents met masker (uitgezonderd anti maatregels)
+  vaccinPercent : 0, //% mensen gevaccineerd (uitgezonderd anti maatregels)
+  antiMaatregel : 0, //% anti maatregels (geen masker, vaccin of social distancing)
 }
 let infectieFunctieString = "pow(1.36 , -4*x)";
 
+//statistieken variabelen
+let current = [0, 0, 0, 0, 0, 0, 0] //#vatbaar, #incubatie, #ziek, #hersteld, #antiCovid, #masker, #vaccin
+let history = []
 
 let agents = [];
 let eenzameAgents = []; // agents die willen socializen en een bubbel willen vormen
@@ -48,6 +52,13 @@ function setup() {
   }
 
   maakWaarschijnlijkheidsFunctie(infectieFunctieString);
+
+  current[0] = agents.length;
+
+  //maatregel variabelen toepassen
+  maakAntiCovid();
+  draagMasker();
+  vaccineren();
 }
 
 function draw() {
@@ -63,6 +74,8 @@ function draw() {
     for (let x of agents) {
       x.versprijd();
     }
+    //voeg current toe aan history
+    opslaan();
   }
 
   // teken winkel
@@ -95,6 +108,54 @@ function draw() {
 
 }
 
+//bepaal de agents die een masker moeten dragen
+function draagMasker() {
+  current[5] = 0; //reset statistiek
+  if (maatregels.masker == true) {
+    for (let x of agents) {
+      if (x.antiCovid == false) {x.masker = true; current[5]++;}//geef iedereen masker die geen anti covid is
+    }
+  } else {
+    for (let x of agents) {
+      x.masker = false;//iedereen doet masker uit
+    }
+  }
+}
+
+//bepaal wie anti covid is
+function maakAntiCovid() {
+  for (let x of agents) {
+    x.antiCovid = false; //reset iedereen
+  }
+  let temp = Math.floor(agents.length * maatregels.antiMaatregel); //hoeveel man is anti maatregels
+  for (let i = 0; i < temp; i++) {//kies temp aantal agents voor anti covid
+    let a = random(agents);
+    a.antiCovid = true;
+  }
+  current[4] = temp; //update statistieken
+}
+
+function vaccineren() {
+  for (let x of agents) {
+    x.gevacinneerd = false; //reset iedereen
+  }
+  current[6] = 0;//reset statistiek
+
+  let temp = Math.floor(agents.length * (1 - maatregels.antiMaatregel)); //hoeveel man is niet anti maatregels
+  temp = Math.floor(temp * maatregels.vaccinPercent); //hoeveem man is gevacineerd
+ 
+  let x = 0;
+  for (let i = 0; i < temp; i ++) {
+    while (true) { //zoek de eerste agent in de lijst die geen anticovid en ongevacineerd is
+      if (agents[i + x].antiCovid == false && agents[i + x].gevacinneerd == false) {
+        agents[i + x].gevacinneerd = true; //vaccineer agent
+        current[6]++; //voeg 1 toe aan statistieken
+        break; //reset loop (zoek naar volgende ongevaccineerde)
+      } else {x++;}
+    }
+  }
+}
+
 //maak functie die de waarschijnlijkheid geeft op infectie geeft gebaseerd op afstand en steek deze in disease.infectieFunctie
 //var functie = new Function('d', 'return(d);');
 //WTF dees is verdacht easy lol
@@ -115,7 +176,17 @@ function maakWaarschijnlijkheidsFunctie(f) {
 function start() { //start de simulatie (infecteer 1 iemand)
   agents[0].compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
   agents[0].compartiment = 1;
+  current[0]--;
+  current[1]++;
   console.log("simulatie gestart");
+}
+
+function opslaan() {//slaag current statistieken op naar history
+  let temp = []; //gwn copiedje maken zodat we geen reference hoeven te maken
+  for (let x of current) {
+    temp.push(x);
+  }
+  history.push(temp);
 }
 
 //function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
@@ -125,7 +196,7 @@ function start() { //start de simulatie (infecteer 1 iemand)
 GUI
 Bubbels !done!
 Versprijding
-grafieken?
+grafieken? (mementeel gwn tabel)
 */
 
 `werkt deze 
