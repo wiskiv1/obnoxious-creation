@@ -20,7 +20,16 @@ let disease = {
   infectieFunctie : null, //wordt gevuld in setup() is de waarschijnlijkheid op infectie op basis van afstand
   infectieRadius : 30,
   masker : 0.7, //infectiemultiplier
-  vaccin : 0.1  //infectiemultiplier
+  vaccin : 0.1,  //infectiemultiplier
+  assymptomatisch : 1, //infectiemultiplier
+  incubatie : 1, //infectiemultiplier
+}
+let maatregels = { //simulatie parameters zijn universeel
+  bubbels : true,
+  socialDistance : true,
+  winkel : false,
+  maskerPercent : 1,
+  vaccinPercent : 1
 }
 let infectieFunctieString = "pow(1.36 , -4*x)";
 
@@ -57,12 +66,14 @@ function draw() {
   }
 
   // teken winkel
-  push();
-  fill(255, 76, 0);
-  strokeWeight(3)
-  stroke(25)
-  //square(store.x, store.y, 20);
-  pop();
+  if (maatregels.winkel == true) {
+    push();
+    fill(255, 76, 0);
+    strokeWeight(3)
+    stroke(25)
+    square(store.x, store.y, 20);
+    pop();
+  }
 
   //zet 4 eenzame agents in een bubbel en geef ze een leider
   if (eenzameAgents.length >= bubbels.size) { 
@@ -91,16 +102,21 @@ function maakWaarschijnlijkheidsFunctie(f) {
   let func = f;
   func = func.replace("x", "(d / 10)"); //zorg dat in de functie 1m gelijk is aan 10 pixels
 
-  disease.infectieFunctie = new Function("d, zieke, gezond", "let waarschijnlijkheid = " + func + "; if (zieke.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} if (gezond.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} if (gezond.gevacinneerd == true) {waarschijnlijkheid = waarschijnlijkheid * disease.vaccin;} return waarschijnlijkheid;");
+  disease.infectieFunctie = new Function("d, zieke, gezond", `
+    let waarschijnlijkheid = ` + func + `; 
+    if (zieke.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;}
+    if (zieke.asymptomatsch == true) {waarschijnlijkheid = waarschijnlijkheid * disease.assymptomatisch;}
+    if (zieke.compartiment == 1) {waarschijnlijkheid = waarschijnlijkheid * disease.incubatie;}
+    if (gezond.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} 
+    if (gezond.gevacinneerd == true) {waarschijnlijkheid = waarschijnlijkheid * disease.vaccin;}
+    return waarschijnlijkheid;`);
 }
 
-/*infectiefunctie overzichtelijk:
-  let waarschijnlijkheid = " + func + ";
-  if (zieke.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} //pas aan voor masker zieke
-  if (gezond.masker == true) {waarschijnlijkheid = waarschijnlijkheid * disease.masker;} //pas aan vor masker gezonde
-  if (gezond.gevacinneerd == true) {waarschijnlijkheid = waarschijnlijkheid * disease.vaccin;} //pas aan voor vaccin gezonde
-  return waarschijnlijkheid;
-*/
+function start() { //start de simulatie (infecteer 1 iemand)
+  agents[0].compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
+  agents[0].compartiment = 1;
+  console.log("simulatie gestart");
+}
 
 //function mousePressed() {agents.push(new agent(mouseX, mouseY, agents.length));}
 //function mousePressed() {print(agents[0].winkelTimer)}
@@ -111,3 +127,7 @@ Bubbels !done!
 Versprijding
 grafieken?
 */
+
+`werkt deze 
+shit echt wow dit is nice lol
+`

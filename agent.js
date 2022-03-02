@@ -40,8 +40,8 @@ class agent {
                 
                 //neem willekeurig getal [0,1] als dit kleiner is als de infectiewaarschijnlijkheid dan is agent geinfecteerd
                 if (disease.infectieFunctie(d, this, a) >= Math.random()) {
-                    a.compartiment = 1;
                     a.compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
+                    a.compartiment = 1;
                 }
             }
         }
@@ -49,13 +49,14 @@ class agent {
         if (this.compartiment != 0) {
             if (this.compartimentTimer == 0 && disease.compartimentPeriodes[this.compartiment] != 0) {
                 this.compartiment++; //ga naar volgende fase
+                if (this.compartiment >= disease.compartimentPeriodes.length) {this.compartiment = 0;}//loop terug als herinfectie mogelijk is
                 //bereken hoe lang agents zich in deze fase zal zijn
                 let temp = floor(disease.compartimentPeriodes[this.compartiment] * (0.5 + Math.random()));//tussen 50% en 150% van gemiddelde waarde
                 this.compartimentTimer = temp;
             }
 
             //verlaag compartiment timer met 1
-            if (disease.compartimentPeriodes[this.compartiment] != 0) {this.compartimentTimer--;}
+            else if (disease.compartimentPeriodes[this.compartiment] != 0) {this.compartimentTimer--;}
         }
     }
 
@@ -63,22 +64,28 @@ class agent {
         //DOEL SELECTIE (berekenen van de acceleratie vector) -------------------------------------------------
         //pas parameters aan (enkel voor antivaxers / anticoronamaatregel mensen)
 
-
         //social distancing
         let social = createVector(0, 0)
-        for (let a of agents) {
-            if (a == this) continue;
+        if (maatregels.socialDistance == true) {
+            for (let a of agents) {
+                if (a == this) continue;
 
-            let d = dist(a.position.x, a.position.y, this.position.x, this.position.y);
-            if (d < this.radius) {
-                social.add(this.afstand(a));
+                let d = dist(a.position.x, a.position.y, this.position.x, this.position.y);
+                if (d < this.radius) {
+                    social.add(this.afstand(a));
+                }
             }
+            this.acceleration.add(social.mult(this.socialMulti)); //hoe balngrijk social distancing is kan hier bepaald worden
+        } else {
+            //willekeurig rondlopen
+            social = p5.Vector.random2D();
+            social.normalize();
+            this.acceleration.add(social.mult(this.socialMulti));
         }
-        this.acceleration.add(social.mult(this.socialMulti)); //hoe balngrijk social distancing is kan hier bepaald worden
 
 
         //ga naar de winkel
-        if (this.winkelTimer <= 0) {
+        if (this.winkelTimer <= 0 && maatregels.winkel == true) {
             //winkel vector
             let v = this.gaNaar(store.x, store.y);
             if (v.mag > 8) {v.setMag(8);} //limiteer hoe groot winkel vector kan zijn
@@ -97,46 +104,52 @@ class agent {
         } 
 
         //bubbels
-        if (this.bubbelTimer == 0) {
-            //maak bekend dat agent eenzaam is en wil socializen
-            eenzameAgents.push(this.agentId);
-            this.bubbelTimer = this.bubbelTimer - 1;
+        if (maatregels.bubbels == true) {
+            if (this.bubbelTimer == 0) {
+                //maak bekend dat agent eenzaam is en wil socializen
+                eenzameAgents.push(this.agentId);
+                this.bubbelTimer = this.bubbelTimer - 1;
 
-        } else if (this.bubbelTimer < -1) {
-            if (this.bubbelId >= 0) {
-                //als niet de leider dan ga naar de leider
-                let l = agents[this.bubbelId]; // selecteer leider
-                let v = this.gaNaar(l.position.x, l.position.y);
-                //voeg vector toe aan versnelling
-                if (v.mag > 8) {v.setMag(8);} //limiteer hoe groot vector kan zijn
-                this.acceleration.add(v.mult(this.bubbelMulti));//kies hoe belangrijk
+            } else if (this.bubbelTimer < -1) {
+                if (this.bubbelId >= 0) {
+                    //als niet de leider dan ga naar de leider
+                    let l = agents[this.bubbelId]; // selecteer leider
+                    let v = this.gaNaar(l.position.x, l.position.y);
+                    //voeg vector toe aan versnelling
+                    if (v.mag > 8) {
+                        v.setMag(8);
+                    } //limiteer hoe groot vector kan zijn
+                    this.acceleration.add(v.mult(this.bubbelMulti)); //kies hoe belangrijk
 
-                //wanneer dicht genoeg bij leider stop met social distancing
-                //en tel hoe lang je samen blijft
-                let d = dist(l.position.x, l.position.y, this.position.x, this.position.y);
-                if (d < this.radius + 5) {
-                    this.socialMulti = 0;
-                    l.socialMulti = 0;
+                    //wanneer dicht genoeg bij leider stop met social distancing
+                    //en tel hoe lang je samen blijft
+                    let d = dist(l.position.x, l.position.y, this.position.x, this.position.y);
+                    if (d < this.radius + 5) {
+                        this.socialMulti = 0;
+                        l.socialMulti = 0;
 
-                    if (d < this.radius) {
-                        this.bubbelMulti = 0;//stop het ronddraaien
-                        
-                        //tel af en reset
-                        this.bubbelTimer = this.bubbelTimer - 1;
-                        if (this.bubbelTimer == - 2 - bubbels.lengte) { //als sociale interactie gedaan is
-                            this.socialMulti = 1;
+                        if (d < this.radius) {
+                            this.bubbelMulti = 0; //stop het ronddraaien
+
+                            //tel af en reset
+                            this.bubbelTimer = this.bubbelTimer - 1;
+                            if (this.bubbelTimer == -2 - bubbels.lengte) { //als sociale interactie gedaan is
+                                this.socialMulti = 1;
+                                this.bubbelMulti = 1;
+                                l.socialMulti = 1;
+                                l.bubbelId = l.bubbelId - 1;
+                                this.bubbelId = -1;
+                                this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
+                            }
+                        } else {
                             this.bubbelMulti = 1;
-                            l.socialMulti = 1;
-                            l.bubbelId = l.bubbelId - 1;
-                            this.bubbelId = -1;
-                            this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
-                        }
-                    } else {this.bubbelMulti = 1;} //zorg dat ze niet vast komen te zitten
+                        } //zorg dat ze niet vast komen te zitten
+                    }
+                } else if (this.bubbelId == -4) {
+                    this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
                 }
-            } else if (this.bubbelId == -4) {
-                this.bubbelTimer = floor(random(bubbels.min, bubbels.max));
-            }
 
+            }
         }
 
 
@@ -159,8 +172,8 @@ class agent {
         if (this.position.y < 0) {this.position.y = height;}
 
         //verwijder 1 van de benodighedentimers maar enkel als er geen andere behoefte wordt uitgevoerd
-        //if (this.winkelTimer > 0 && !(this.bubbelTimer <= 0) ) {this.winkelTimer = this.winkelTimer - 1;}
-        if (this.bubbelTimer > 0 && !(this.winkelTimer <= 0) ) {this.bubbelTimer = this.bubbelTimer - 1;}
+        //if (this.winkelTimer > 0 && !(this.bubbelTimer <= 0) && maatregels.winkel == true) {this.winkelTimer = this.winkelTimer - 1;}
+        if (this.bubbelTimer > 0 && !(this.winkelTimer <= 0) && maatregels.bubbels == true) {this.bubbelTimer = this.bubbelTimer - 1;}
     }
 
     //STUREN -----------------------------------------------------------------------------------------------
