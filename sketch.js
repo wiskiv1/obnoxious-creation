@@ -25,8 +25,8 @@ let disease = {
 }
 let maatregels = { //simulatie parameters zijn universeel
   bubbels : true,
-  socialDistance : true,
-  winkel : false,
+  socialDistance : false,
+  winkel : true,
   masker : false, //% agents met masker (uitgezonderd anti maatregels)
   vaccinPercent : 0, //% mensen gevaccineerd (uitgezonderd anti maatregels)
   antiMaatregel : 0, //% anti maatregels (geen masker, vaccin of social distancing)
@@ -36,6 +36,7 @@ let infectieFunctieString = "pow(1.36 , -4*x)";
 //statistieken variabelen
 let current = [0, 0, 0, 0, 0, 0, 0] //#vatbaar, #incubatie, #ziek, #hersteld, #antiCovid, #masker, #vaccin
 let history = []
+let debug = false;
 
 let agents = [];
 let eenzameAgents = []; // agents die willen socializen en een bubbel willen vormen
@@ -201,3 +202,20 @@ grafieken? (mementeel gwn tabel)
 `werkt deze 
 shit echt wow dit is nice lol
 `
+
+//gepikt van het ineternet
+exportToCsv = function(titel) {
+  var CsvString = "";
+  history.forEach(function(RowItem, RowIndex) {
+    RowItem.forEach(function(ColItem, ColIndex) {
+      CsvString += ColItem + ',';
+    });
+    CsvString += "\r\n";
+  });
+  CsvString = "data:application/csv," + encodeURIComponent(CsvString);
+ var x = document.createElement("A");
+ x.setAttribute("href", CsvString );
+ x.setAttribute("download", titel + ".csv");
+ document.body.appendChild(x);
+ x.click();
+}

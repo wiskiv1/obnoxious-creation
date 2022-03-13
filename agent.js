@@ -31,6 +31,11 @@ class agent {
         if (this.compartiment == 3) {stroke(100);}
         strokeWeight(8);
         point(this.position.x, this.position.y);
+        strokeWeight(3)
+        stroke(0);
+        fill(255);
+        textSize(8);
+        if (debug) {text(this.agentId, this.position.x, this.position.y)}
         pop();
     }
 
