@@ -190,7 +190,7 @@ class agent {
         if (this.position.y < 0) {this.position.y = height;}
 
         //verwijder 1 van de benodighedentimers maar enkel als er geen andere behoefte wordt uitgevoerd
-        //if (this.winkelTimer > 0 && !(this.bubbelTimer <= 0) && maatregels.winkel == true) {this.winkelTimer = this.winkelTimer - 1;}
+        if (this.winkelTimer > 0 && !(this.bubbelTimer <= 0) && maatregels.winkel == true) {this.winkelTimer = this.winkelTimer - 1;}
         if (this.bubbelTimer > 0 && !(this.winkelTimer <= 0) && maatregels.bubbels == true) {this.bubbelTimer = this.bubbelTimer - 1;}
     }
 
