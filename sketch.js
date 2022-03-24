@@ -24,9 +24,9 @@ let disease = {
   incubatie : 1, //infectiemultiplier
 }
 let maatregels = { //simulatie parameters zijn universeel
-  bubbels : true,
-  socialDistance : false,
-  winkel : true,
+  bubbels : false,
+  socialDistance : true,
+  winkel : false,
   masker : false, //% agents met masker (uitgezonderd anti maatregels)
   vaccinPercent : 0, //% mensen gevaccineerd (uitgezonderd anti maatregels)
   antiMaatregel : 0, //% anti maatregels (geen masker, vaccin of social distancing)
