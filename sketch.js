@@ -25,7 +25,7 @@ let disease = {
 }
 let maatregels = { //simulatie parameters zijn universeel
   bubbels : false,
-  socialDistance : true,
+  socialDistance : false,
   winkel : false,
   masker : false, //% agents met masker (uitgezonderd anti maatregels)
   vaccinPercent : 0, //% mensen gevaccineerd (uitgezonderd anti maatregels)
@@ -47,7 +47,7 @@ function setup() {
 
   frameRate(30);//framerate op 30 zetten, wordt makkelijk om later te berekenen hoe lang agents bij elkaar in de buurt zijn in "echte tijd"
 
-  for (var i = 0; i < 0; i++) {
+  for (var i = 0; i < 25; i++) {
     agents.push(new agent(random(width), random(height), i)); //maak 100 agents verspreid random over het veld
   }
 
@@ -56,9 +56,10 @@ function setup() {
   current[0] = agents.length;
 
   //maatregel variabelen toepassen
-  maakAntiCovid();
-  draagMasker();
-  vaccineren();
+  toepassen();
+  //maakAntiCovid();
+  //draagMasker();
+  //vaccineren();
 }
 
 function draw() {
@@ -127,6 +128,7 @@ function maakAntiCovid() {
   for (let x of agents) {
     x.antiCovid = false; //reset iedereen
   }
+  
   let temp = Math.floor(agents.length * maatregels.antiMaatregel); //hoeveel man is anti maatregels
   for (let i = 0; i < temp; i++) {//kies temp aantal agents voor anti covid
     let a = random(agents);
@@ -173,6 +175,8 @@ function maakWaarschijnlijkheidsFunctie(f) {
     return waarschijnlijkheid;`);
 }
 
+/*
+VERPLAATST NAAR GUI_integratie.js
 function start() { //start de simulatie (infecteer 1 iemand)
   agents[0].compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
   agents[0].compartiment = 1;
@@ -180,6 +184,7 @@ function start() { //start de simulatie (infecteer 1 iemand)
   current[1]++;
   console.log("simulatie gestart");
 }
+*/
 
 function opslaan() {//slaag current statistieken op naar history
   let temp = []; //gwn copiedje maken zodat we geen reference hoeven te maken

@@ -27,6 +27,7 @@
   <script src="sketch.js"></script>
   <script src="agent.js"></script>
   <script src="rainbow-console.js"></script>
+  <script src="GUI_integratie.js"></script>
 
   <table style="border-collapse: collapse; width: 800px; position: relative; top: 620px;" border="1">
     <tbody>
@@ -84,7 +85,7 @@
           <h4>Maatregelen</h4>
           <input type="checkbox" id="bubbels">
           <label for="bubbels">bubbels</label><br>
-          <input type="checkbox" id="socialDistance" checked>
+          <input type="checkbox" id="socialDistance">
           <label for="socialDistance">afstand houden</label><br>
           <input type="number" id="straal" value="30" style="width: 50px;">
           <label for="straal">welke afstand</label><br>
@@ -101,10 +102,11 @@
     </tbody>
   </table>
 
-  <input type="button" value="toepassen" id="toepassen" style="position: relative; top: 620px;">
-  <input type="button" value="start" id="start" style="position: relative; top: 620px;">
-  <label for="density" style="position: relative; top: 620px;">hoeveel agents?</label>
+  <input type="button" value="toepassen" id="toepassen" style="position: relative; top: 620px;" onclick="toepassen()">
+  <input type="button" value="start" id="start" style="position: relative; top: 620px;" onclick="start()">
+  <label for="density" id="densityLabel" style="position: relative; top: 620px;">hoeveel agents?</label>
   <input type="number" id="density" value="200" style="width: 50px; position: relative; top: 620px;">
+  <input type="button" value="exporteer data" id="opslaan" style="position: relative; top: 620px; display: none" onclick="exportToCsv()">
   <hr style="position: relative; top: 620px;">
 
 </body>
