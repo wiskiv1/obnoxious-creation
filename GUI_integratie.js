@@ -51,7 +51,8 @@ function start() { //start de simulatie (infecteer 1 iemand)
     }
 
     toepassen()
-    
+    current[0] = agents.length
+
     //infecteer 1 iemand
     agents[0].compartimentTimer = floor(disease.compartimentPeriodes[1] * (0.5 + Math.random()));
     agents[0].compartiment = 1;
